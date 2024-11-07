@@ -57,20 +57,25 @@ public class Board
         return row < 0 || row >= board.GetLength(0) || column < 0 || column >= board.GetLength(1) || board[row, column] == 2;
     }
 
-    public double[] GetVector(int row, int column)
+    public bool[] GetVector(int row, int column)
     {
-        double[] vector = new double[board.GetLength(0) * board.GetLength(1)];
+        bool[] vector = new bool[board.GetLength(0) * board.GetLength(1)];
         
         if (board[row, column] == 2)
         {
             return vector;
+        }
+
+        for (int i = 0; i < vector.Length; i++)
+        {
+            vector[i] = false;
         }
         
         // up
         int curr = row - 1;
         while (!IsWall(curr, column))
         {
-            vector[GetBinPos(curr, column)] = 1;
+            vector[GetBinPos(curr, column)] = true;
             curr--;
         }
 
@@ -78,7 +83,7 @@ public class Board
         curr = row + 1;
         while (!IsWall(curr, column))
         {
-            vector[GetBinPos(curr, column)] = 1;
+            vector[GetBinPos(curr, column)] = true;
             curr++;
         }
 
@@ -86,7 +91,7 @@ public class Board
         curr = column - 1;
         while (!IsWall(row, curr))
         {
-            vector[GetBinPos(row, curr)] = 1;
+            vector[GetBinPos(row, curr)] = true;
             curr--;
         }
 
@@ -94,19 +99,19 @@ public class Board
         curr = column + 1;
         while (!IsWall(row, curr))
         {
-            vector[GetBinPos(row, curr)] = 1;
+            vector[GetBinPos(row, curr)] = true;
             curr++;
         }
 
-        vector[GetBinPos(row, column)] = 1;
+        vector[GetBinPos(row, column)] = true;
 
         return vector;
     }
 
-    public double[,] GetMatrix()
+    public bool[,] GetMatrix()
     {
         int n = board.GetLength(0) * board.GetLength(1);
-        double[,] matrix = new double[n, n];
+        bool[,] matrix = new bool[n, n];
 
         for (int i = 0; i < board.GetLength(0); i++)
         {
@@ -117,7 +122,7 @@ public class Board
                     continue;
                 }
 
-                double[] vector = GetVector(i, j);
+                bool[] vector = GetVector(i, j);
 
                 for (int k = 0; k < vector.Length; k++)
                 {
@@ -129,10 +134,10 @@ public class Board
         return matrix;
     }
 
-    public double[] GetRHS()
+    public bool[] GetRHS()
     {
         int n = board.GetLength(0) * board.GetLength(1);
-        double[] rhs = new double[n];
+        bool[] rhs = new bool[n];
 
         for (int i = 0; i < board.GetLength(0); i++)
         {
@@ -141,15 +146,15 @@ public class Board
                 
                 if (board[i, j] == 2)
                 {
-                    rhs[GetBinPos(i, j)] = 0;
+                    rhs[GetBinPos(i, j)] = false;
                 }
                 else if(board[i, j] == 1)
                 {
-                    rhs[GetBinPos(i, j)] = 1;
+                    rhs[GetBinPos(i, j)] = true;
                 }
                 else
                 {
-                    rhs[GetBinPos(i, j)] = 0;
+                    rhs[GetBinPos(i, j)] = false;
                 }
             }
         }
@@ -226,9 +231,9 @@ class Program
 
             // Display the result
             string solutionString = "";
-            for (int i = 0; i < augmentedMatrix.RowCount; i++)
+            for (int i = 0; i < augmentedMatrix.GetLength(0); i++)
             {
-                solutionString += augmentedMatrix[i, augmentedMatrix.ColumnCount - 1];
+                solutionString += augmentedMatrix[i, augmentedMatrix.GetLength(1) - 1] ? "1" : "0";
             }
             Console.WriteLine("\n\nSolution (in mod 2):\n");
             Console.WriteLine(solutionString);
@@ -250,58 +255,59 @@ class Program
         }
     }
 
-        static Matrix<double> BuildAugmentedMatrix(double[,] matrix, double[] rhs)
+    static bool[,] BuildAugmentedMatrix(bool[,] matrix, bool[] rhs)
+    {
+        int rows = matrix.GetLength(0);
+        int cols = matrix.GetLength(1) + 1;
+        var augmentedMatrix = new bool[rows, cols];
+
+        for (int i = 0; i < rows; i++)
         {
-            int rows = matrix.GetLength(0);
-            int cols = matrix.GetLength(1) + 1;
-            var augmentedMatrix = Matrix<double>.Build.Dense(rows, cols);
-
-            for (int i = 0; i < rows; i++)
+            for (int j = 0; j < matrix.GetLength(1); j++)
             {
-                for (int j = 0; j < matrix.GetLength(1); j++)
-                {
-                    augmentedMatrix[i, j] = matrix[i, j] % 2; // Ensure mod 2
-                }
-                augmentedMatrix[i, cols - 1] = rhs[i] % 2; // Add RHS as last column
+                augmentedMatrix[i, j] = matrix[i, j]; // Copy matrix elements
             }
-
-            return augmentedMatrix;
+            augmentedMatrix[i, cols - 1] = rhs[i]; // Add RHS as last column
         }
 
-        static void GaussJordanEliminationMod2(Matrix<double> matrix)
+        return augmentedMatrix;
+    }
+
+    static void GaussJordanEliminationMod2(bool[,] matrix)
+    {
+        int rows = matrix.GetLength(0);
+        int cols = matrix.GetLength(1);
+
+        for (int i = 0; i < rows; i++)
         {
-            int rows = matrix.RowCount;
-            int cols = matrix.ColumnCount;
-
-            for (int i = 0; i < rows; i++)
+            // Ensure the pivot is true (find a row to swap if necessary)
+            if (!matrix[i, i])
             {
-                // Make sure the pivot is 1 (find a row to swap if necessary)
-                if (matrix[i, i] == 0)
+                for (int k = i + 1; k < rows; k++)
                 {
-                    for (int k = i + 1; k < rows; k++)
+                    if (matrix[k, i])
                     {
-                        if (matrix[k, i] == 1)
-                        {
-                            matrix.SetRow(i, matrix.Row(k) + matrix.Row(i));
-                            break;
-                        }
-                    }
-                }
-
-                // Normalize row to ensure the pivot is 1
-                matrix[i, i] %= 2;
-
-                // Make all elements in the current column except the pivot zero
-                for (int k = 0; k < rows; k++)
-                {
-                    if (k != i && matrix[k, i] == 1)
-                    {
+                        // Swap rows using XOR (bitwise addition in Boolean space)
                         for (int j = 0; j < cols; j++)
                         {
-                            matrix[k, j] = (matrix[k, j] + matrix[i, j]) % 2; // Add rows mod 2
+                            matrix[i, j] ^= matrix[k, j];
                         }
+                        break;
                     }
                 }
             }
-        }       
+
+            // Make all elements in the current column except the pivot zero
+            for (int k = 0; k < rows; k++)
+            {
+                if (k != i && matrix[k, i])
+                {
+                    for (int j = 0; j < cols; j++)
+                    {
+                        matrix[k, j] ^= matrix[i, j]; // XOR to zero out non-pivot elements
+                    }
+                }
+            }
+        }
     }
+}
