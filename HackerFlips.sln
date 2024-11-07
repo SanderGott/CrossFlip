@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HackerFlips", "HackerFlips\HackerFlips.csproj", "{28B56C1E-643B-4053-BBF8-BE0A992D3E41}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FlipsGauus", "FlipsGauus\FlipsGauus.csproj", "{EFCD49CA-6FCF-42D8-AFF5-3546EE03B856}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{28B56C1E-643B-4053-BBF8-BE0A992D3E41}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{28B56C1E-643B-4053-BBF8-BE0A992D3E41}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{28B56C1E-643B-4053-BBF8-BE0A992D3E41}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{28B56C1E-643B-4053-BBF8-BE0A992D3E41}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EFCD49CA-6FCF-42D8-AFF5-3546EE03B856}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EFCD49CA-6FCF-42D8-AFF5-3546EE03B856}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EFCD49CA-6FCF-42D8-AFF5-3546EE03B856}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EFCD49CA-6FCF-42D8-AFF5-3546EE03B856}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
