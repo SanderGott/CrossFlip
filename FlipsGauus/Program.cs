@@ -194,8 +194,8 @@ class Program
             }
 
             // Find the latest level (highest ID)
-            int latestLevel = data.Keys.Max();
-            //int latestLevel = 75;
+            //int latestLevel = data.Keys.Max();
+            int latestLevel = 135;
             var puzzleData = data[latestLevel];
 
             if (!puzzleData.TryGetValue("boardStr", out object boardStrObj) || boardStrObj == null)
@@ -206,7 +206,7 @@ class Program
 
             string boardStr = boardStrObj.ToString();
             Console.WriteLine($"Starting level {latestLevel}");
-            Console.WriteLine(boardStr);
+            //Console.WriteLine(boardStr);
 
             var board = new Board(boardStr, latestLevel);
             
@@ -225,9 +225,14 @@ class Program
 
             var rhs = board.GetRHS();
 
-
+            // start timer
+            var watch = System.Diagnostics.Stopwatch.StartNew();
             var augmentedMatrix = BuildAugmentedMatrix(vec, rhs);
             GaussJordanEliminationMod2(augmentedMatrix);
+            watch.Stop();
+            var elapsedMs = watch.ElapsedMilliseconds;
+
+            Console.WriteLine($"Time taken: {elapsedMs} ms");
 
             // Display the result
             string solutionString = "";
@@ -235,8 +240,8 @@ class Program
             {
                 solutionString += augmentedMatrix[i, augmentedMatrix.GetLength(1) - 1] ? "1" : "0";
             }
-            Console.WriteLine("\n\nSolution (in mod 2):\n");
-            Console.WriteLine(solutionString);
+            //Console.WriteLine("\n\nSolution (in mod 2):\n");
+            //Console.WriteLine(solutionString);
 
             puzzleData["solution"] = solutionString;
 
@@ -260,6 +265,7 @@ class Program
         int rows = matrix.GetLength(0);
         int cols = matrix.GetLength(1) + 1;
         var augmentedMatrix = new bool[rows, cols];
+
 
         for (int i = 0; i < rows; i++)
         {
