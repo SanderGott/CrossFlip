@@ -7,6 +7,9 @@ import urllib.request
 import re
 import os
 import json
+import socket
+import requests
+
 
 file_path = "puzzle.json"
 
@@ -62,40 +65,40 @@ def postPuzzle(level):
 
     if str(level) in data:
         solution = data[str(level)]
-        boardStr = solution["boardStr"]
+        #boardStr = solution["boardStr"]
         solution = solution["solution"]
 
-        url = "http://www.hacker.org/cross/index.php/"
-        url = url + "?name=" + uname + "&password=" + pword + "&lvl=" + str(level) + "&sol=" + solution
+        url = "https://www.hacker.org/cross/index.php"
+        #url = "http://localhost:5000/post-details"  # Uncomment if testing locally
 
-        with urllib.request.urlopen(url) as response:
-            html = response.read().decode('utf-8')
+        # Prepare data as a URL-encoded string
+        data = f"name={uname}&password={pword}&lvl={level}&sol={solution}"
 
-            if "Congratulations" in html:
-                with open(file_path, "r") as f:
-                    data = json.load(f)
+        # Define headers to match the HTTPie request
+        headers = {
+            "Content-Type": "application/x-www-form-urlencoded",
+            "Connection": "close",
+            "User-Agent": "HTTPie"
+        }
 
-                
+        # Send POST request
+        response = requests.post(url, data=data, headers=headers, allow_redirects=True)
 
-                with open(file_path, "w") as f:
-                    json.dump(data, f, indent=4)
-
-            return html
-
-        return None
-
+        
 
 import subprocess
 
 if __name__ == "__main__":
     #getPuzzle()
-    postPuzzle(13)
+    ##postPuzzle(13)
 
     #executable = "HackerFlips/bin/Debug/net8.0/HackerFlips.exe"
     executable = "FlipsGauus/bin/Debug/net8.0/FlipsGauus.exe"
 
-    start = 108
-
+    start = 228
+    #getPuzzle()
+    #print(postPuzzle2(227))
+    #exit()
     while True:
         getPuzzle()
 
