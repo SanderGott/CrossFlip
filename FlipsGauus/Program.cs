@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Numerics;
 using System.Reflection;
 using System.Text.Json;
 
@@ -194,8 +195,8 @@ class Program
             }
 
             // Find the latest level (highest ID)
-            //int latestLevel = data.Keys.Max();
-            int latestLevel = 135;
+            int latestLevel = data.Keys.Max();
+            //int latestLevel = 135;
             var puzzleData = data[latestLevel];
 
             if (!puzzleData.TryGetValue("boardStr", out object boardStrObj) || boardStrObj == null)
@@ -238,7 +239,8 @@ class Program
             string solutionString = "";
             for (int i = 0; i < augmentedMatrix.GetLength(0); i++)
             {
-                solutionString += augmentedMatrix[i, augmentedMatrix.GetLength(1) - 1] ? "1" : "0";
+                //solutionString += augmentedMatrix[i, augmentedMatrix.GetLength(1) - 1] ? "1" : "0";
+                solutionString += augmentedMatrix[i, augmentedMatrix.GetLength(1) - 1] & 1UL;
             }
             //Console.WriteLine("\n\nSolution (in mod 2):\n");
             //Console.WriteLine(solutionString);
@@ -260,6 +262,85 @@ class Program
         }
     }
 
+    static ulong[,] BuildAugmentedMatrix(bool[,] matrix, bool[] rhs)
+    {
+        int rows = matrix.GetLength(0);
+        int boolCols = matrix.GetLength(1);
+        int ulongCols = (boolCols + 64) / 64; // Number of `ulong`s needed per row
+        
+        // Augmented matrix where each row is represented by multiple `ulong`s
+        ulong[,] augmentedMatrix = new ulong[rows, ulongCols + 1];
+
+        for (int i = 0; i < rows; i++)
+        {
+            for (int j = 0; j < boolCols; j++)
+            {
+                if (matrix[i, j])
+                {
+                    int ulongIndex = j / 64;       // Determine which `ulong` in the row
+                    int bitPosition = j % 64;      // Determine bit position within the `ulong`
+                    augmentedMatrix[i, ulongIndex] |= (1UL << bitPosition); // Set the bit
+                }
+            }
+
+            // Add the RHS value as the last `ulong` in each row
+            if (rhs[i])
+            {
+                augmentedMatrix[i, ulongCols] |= 1UL; // Set the first bit in the last `ulong`
+            }
+        }
+
+        return augmentedMatrix;
+    }
+
+    static void GaussJordanEliminationMod2(ulong[,] matrix)
+    {
+        int rows = matrix.GetLength(0);
+        int ulongCols = matrix.GetLength(1);
+
+        for (int i = 0; i < rows; i++)
+        {
+            // Find the pivot column for row `i`
+            int pivotUlongIndex = i / 64;  // Determine which `ulong` contains the pivot bit
+            int pivotBitPosition = i % 64; // Determine the bit position within that `ulong`
+
+            // Ensure the pivot is true (find a row to swap if necessary)
+            if ((matrix[i, pivotUlongIndex] & (1UL << pivotBitPosition)) == 0)
+            {
+                for (int k = i + 1; k < rows; k++)
+                {
+                    if ((matrix[k, pivotUlongIndex] & (1UL << pivotBitPosition)) != 0)
+                    {
+                        // Swap rows using XOR (bitwise addition in Boolean space)
+                        for (int j = 0; j < ulongCols; j++)
+                        {
+                            matrix[i, j] ^= matrix[k, j];
+                        }
+                        break;
+                    }
+                }
+            }
+
+            // Make all elements in the current column except the pivot zero
+            for (int k = 0; k < rows; k++)
+            {
+                if (k != i)
+                {
+                    // Check if the k-th row has a `1` in the pivot column
+                    if ((matrix[k, pivotUlongIndex] & (1UL << pivotBitPosition)) != 0)
+                    {
+                        // Eliminate the k-th row's pivot bit by XOR with the i-th row
+                        for (int j = 0; j < ulongCols; j++)
+                        {
+                            matrix[k, j] ^= matrix[i, j];
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    /*
     static bool[,] BuildAugmentedMatrix(bool[,] matrix, bool[] rhs)
     {
         int rows = matrix.GetLength(0);
@@ -278,7 +359,9 @@ class Program
 
         return augmentedMatrix;
     }
+    */
 
+    /*
     static void GaussJordanEliminationMod2(bool[,] matrix)
     {
         int rows = matrix.GetLength(0);
@@ -316,4 +399,5 @@ class Program
             }
         }
     }
+    */
 }

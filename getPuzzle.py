@@ -31,8 +31,8 @@ def getPuzzle():
         boardinit = boardinit_match.group(1) if boardinit_match else None
         level = int(level_match.group(1)) if level_match else None
 
-        print("boardinit:", boardinit)  # Output: "1001,1220"
-        print("level:", level)          # Output: 10
+        # print("boardinit:", boardinit)  # Output: "1001,1220"
+        print("Received puzzle for level:", level)
 
         if boardinit and level:
             # Check if the file exists; if not, initialize it with an empty dictionary.
@@ -93,11 +93,11 @@ if __name__ == "__main__":
     ##postPuzzle(13)
 
     #executable = "HackerFlips/bin/Debug/net8.0/HackerFlips.exe"
-    executable = "FlipsGauus/bin/Debug/net8.0/FlipsGauus.exe"
+    executable = "FlipsGauus/bin/Release/net8.0/FlipsGauus.exe"
 
-    start = 228
+    start = 312
     #getPuzzle()
-    #print(postPuzzle2(227))
+    #print(postPuzzle(228))
     #exit()
     while True:
         getPuzzle()
